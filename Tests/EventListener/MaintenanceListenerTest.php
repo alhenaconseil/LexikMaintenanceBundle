@@ -38,7 +38,7 @@ class MaintenanceListenerTest extends \PHPUnit_Framework_TestCase
 
         $this->container = $this->initContainer();
 
-        $this->factory = new DriverFactory($this->getDatabaseDriver(false),$this->getTranslator(), $driverOptions);
+        $this->factory = new DriverFactory($this->getDatabaseDriver(false), $this->getMongoDBDriver(false), $this->getTranslator(), $driverOptions);
         $this->container->set('lexik_maintenance.driver.factory', $this->factory);
 
         $listener = new MaintenanceListenerTestWrapper($this->factory);
@@ -47,7 +47,7 @@ class MaintenanceListenerTest extends \PHPUnit_Framework_TestCase
         $listener = new MaintenanceListenerTestWrapper($this->factory, 'path', 'host', array('ip'), array('query'), array('cookie'), 'route');
         $this->assertTrue($listener->onKernelRequest($event), 'Permissive factory should approve with args');
 
-        $this->factory = new DriverFactory($this->getDatabaseDriver(true), $this->getTranslator(), $driverOptions);
+        $this->factory = new DriverFactory($this->getDatabaseDriver(true), $this->getMongoDBDriver(true), $this->getTranslator(), $driverOptions);
         $this->container->set('lexik_maintenance.driver.factory', $this->factory);
 
         $listener = new MaintenanceListenerTestWrapper($this->factory);
@@ -72,7 +72,7 @@ class MaintenanceListenerTest extends \PHPUnit_Framework_TestCase
 
         $this->container = $this->initContainer();
 
-        $this->factory = new DriverFactory($this->getDatabaseDriver(true), $this->getTranslator(), $driverOptions);
+        $this->factory = new DriverFactory($this->getDatabaseDriver(true), $this->getMongoDBDriver(true), $this->getTranslator(), $driverOptions);
         $this->container->set('lexik_maintenance.driver.factory', $this->factory);
 
         $listener = new MaintenanceListenerTestWrapper($this->factory, null);
@@ -103,7 +103,7 @@ class MaintenanceListenerTest extends \PHPUnit_Framework_TestCase
 
         $this->container = $this->initContainer();
 
-        $this->factory = new DriverFactory($this->getDatabaseDriver(true), $this->getTranslator(), $driverOptions);
+        $this->factory = new DriverFactory($this->getDatabaseDriver(true), $this->getMongoDBDriver(true), $this->getTranslator(), $driverOptions);
         $this->container->set('lexik_maintenance.driver.factory', $this->factory);
 
         $listener = new MaintenanceListenerTestWrapper($this->factory, null, null);
@@ -137,7 +137,7 @@ class MaintenanceListenerTest extends \PHPUnit_Framework_TestCase
 
         $this->container = $this->initContainer();
 
-        $this->factory = new DriverFactory($this->getDatabaseDriver(true), $this->getTranslator(), $driverOptions);
+        $this->factory = new DriverFactory($this->getDatabaseDriver(true), $this->getMongoDBDriver(true), $this->getTranslator(), $driverOptions);
         $this->container->set('lexik_maintenance.driver.factory', $this->factory);
 
         $listener = new MaintenanceListenerTestWrapper($this->factory, null, null, null);
@@ -171,7 +171,7 @@ class MaintenanceListenerTest extends \PHPUnit_Framework_TestCase
 
         $this->container = $this->initContainer();
 
-        $this->factory = new DriverFactory($this->getDatabaseDriver(true), $this->getTranslator(), $driverOptions);
+        $this->factory = new DriverFactory($this->getDatabaseDriver(true), $this->getMongoDBDriver(true), $this->getTranslator(), $driverOptions);
         $this->container->set('lexik_maintenance.driver.factory', $this->factory);
 
         $listener = new MaintenanceListenerTestWrapper($this->factory, null, null, null, array(), array(), $debug);
@@ -219,7 +219,7 @@ class MaintenanceListenerTest extends \PHPUnit_Framework_TestCase
 
         $this->container = $this->initContainer();
 
-        $this->factory = new DriverFactory($this->getDatabaseDriver(true), $this->getTranslator(), $driverOptions);
+        $this->factory = new DriverFactory($this->getDatabaseDriver(true), $this->getMongoDBDriver(true), $this->getTranslator(), $driverOptions);
         $this->container->set('lexik_maintenance.driver.factory', $this->factory);
 
         $listener = new MaintenanceListenerTestWrapper($this->factory, null, null, null, null);
@@ -259,7 +259,7 @@ class MaintenanceListenerTest extends \PHPUnit_Framework_TestCase
 
         $this->container = $this->initContainer();
 
-        $this->factory = new DriverFactory($this->getDatabaseDriver(true), $this->getTranslator(), $driverOptions);
+        $this->factory = new DriverFactory($this->getDatabaseDriver(true), $this->getMongoDBDriver(true), $this->getTranslator(), $driverOptions);
         $this->container->set('lexik_maintenance.driver.factory', $this->factory);
 
         $listener = new MaintenanceListenerTestWrapper($this->factory, null, null, null, null, null);
@@ -328,6 +328,29 @@ class MaintenanceListenerTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($lock));
 
         return $db;
+    }
+
+    /**
+     * Get a mock MongoDBDriver
+     *
+     * @param boolean $lock
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getMongoDBDriver($lock = false)
+    {
+        $mongo = $this->getMockbuilder('Lexik\Bundle\MaintenanceBundle\Drivers\MongoDBDriver')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $mongo->expects($this->any())
+            ->method('isExists')
+            ->will($this->returnValue($lock));
+
+        $mongo->expects($this->any())
+            ->method('decide')
+            ->will($this->returnValue($lock));
+
+        return $mongo;
     }
 
     /**

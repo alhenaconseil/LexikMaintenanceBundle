@@ -25,21 +25,29 @@ class DriverFactory
     protected $dbDriver;
 
     /**
+     *
+     * @var MongoDBDriver
+     */
+    protected $mongoDriver;
+
+    /**
      * @var TranslatorInterface
      */
     protected $translator;
 
     const DATABASE_DRIVER = 'Lexik\Bundle\MaintenanceBundle\Drivers\DatabaseDriver';
+    const MONGODB_DRIVER  = 'Lexik\Bundle\MaintenanceBundle\Drivers\MongoDBDriver';
 
     /**
      * Constructor driver factory
      *
      * @param DatabaseDriver      $dbDriver The databaseDriver Service
+     * @param MongoDBDriver       $mongoDriver The MongoDBDriver Service
      * @param TranslatorInterface $translator The translator service
      * @param array               $driverOptions Options driver
      * @throws \ErrorException
      */
-    public function __construct(DatabaseDriver $dbDriver, TranslatorInterface $translator, array $driverOptions)
+    public function __construct(DatabaseDriver $dbDriver, MongoDBDriver $mongoDriver, TranslatorInterface $translator, array $driverOptions)
     {
         $this->driverOptions = $driverOptions;
 
@@ -48,6 +56,7 @@ class DriverFactory
         }
 
         $this->dbDriver = $dbDriver;
+        $this->mongoDriver = $mongoDriver;
         $this->translator = $translator;
     }
 
@@ -67,6 +76,9 @@ class DriverFactory
 
         if ($class === self::DATABASE_DRIVER) {
             $driver = $this->dbDriver;
+            $driver->setOptions($this->driverOptions['options']);
+        } elseif ($class === self::MONGODB_DRIVER) {
+            $driver = $this->mongoDriver;
             $driver->setOptions($this->driverOptions['options']);
         } else {
             $driver = new $class($this->driverOptions['options']);

@@ -99,12 +99,38 @@ The ttl (time to life) option is optional everywhere, it is used to indicate the
             class: 'Lexik\Bundle\MaintenanceBundle\Drivers\DatabaseDriver'             # class for database driver
 
             # Option 1 : for doctrine
-            options: {connection: custom}                                            # Optional. You can choice an other connection. Without option it's the doctrine default connection who will be used
+            options: {connection: custom}                                              # Optional. You can choose another connection. Without option the doctrine default connection will be used
 
             # Option 2 : for dsn, you must have a column ttl type datetime in your table.
             options: {dsn: "mysql:dbname=maintenance;host:localhost", table: maintenance, user: root, password: root}  # the dsn configuration, name of table, user/password
 
-        #Optional. response code and status of the maintenance page
+            # MongoDB driver:
+            class: 'Lexik\Bundle\MaintenanceBundle\Drivers\MongoDBDriver'
+
+            options:
+                # If you do not specify neither the Option1 nor the Option2, the default is { connection: default } (ie doctrine_mongodb default connection)
+                # Option 1 : for doctrine_mongodb
+                connection: custom                                                     # Optional. You can choose another connection.
+
+                # Option 2 : for custom connection
+                host: "localhost"                                                      # The server connection configuration, user/password
+                port: 17027                                                            # Optional. Default is 17027
+                user: "username"                                                       # Optional. Default is null
+                password: "password"                                                   # Optional. Default is null
+                database: "maintenance"                                                # Optional. Default is lexik_maintenance
+
+                # Options for boths
+                # You can choose the collection in wich the lock token will be saved.
+                #   If you do, you are strongly encouraged to also set the customize_lock_document option to prevent your collection to be emptied
+                #   since the unlock command would remove all documents from collection filtering with customize_lock_document
+                collection: "parameters"
+
+                # You can add fields to the lock document that will be created. Your imagination is the only limit
+                customize_lock_document:
+                    type: "settings"
+                    name: "maintenance"
+
+        # Optional. Response code and status of the maintenance page
         response:
             code: 503
             status: "Service Temporarily Unavailable"

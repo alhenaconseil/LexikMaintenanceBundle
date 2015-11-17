@@ -26,7 +26,7 @@ class DriverFactoryTest extends \PHPUnit_Framework_TestCase
 
         $this->container = $this->initContainer();
 
-        $this->factory = new DriverFactory($this->getDatabaseDriver(), $this->getTranslator(), $driverOptions);
+        $this->factory = new DriverFactory($this->getDatabaseDriver(), $this->getMongoDBDriver(), $this->getTranslator(), $driverOptions);
         $this->container->set('lexik_maintenance.driver.factory', $this->factory);
     }
 
@@ -46,25 +46,36 @@ class DriverFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testExceptionConstructor()
     {
-        $factory = new DriverFactory($this->getDatabaseDriver(), $this->getTranslator(), array());
+        $factory = new DriverFactory($this->getDatabaseDriver(), $this->getMongoDBDriver(), $this->getTranslator(), array());
     }
 
     public function testWithDatabaseChoice()
     {
         $driverOptions = array('class' => DriverFactory::DATABASE_DRIVER, 'options' => null);
 
-        $factory = new DriverFactory($this->getDatabaseDriver(), $this->getTranslator(), $driverOptions);
+        $factory = new DriverFactory($this->getDatabaseDriver(), $this->getMongoDBDriver(), $this->getTranslator(), $driverOptions);
 
         $this->container->set('lexik_maintenance.driver.factory', $factory);
 
         $this->assertInstanceOf('Lexik\Bundle\MaintenanceBundle\Drivers\DatabaseDriver', $factory->getDriver());
     }
 
+    public function testWithMongoDBChoice()
+    {
+        $driverOptions = array('class' => DriverFactory::MONGODB_DRIVER, 'options' => null);
+
+        $factory = new DriverFactory($this->getDatabaseDriver(), $this->getMongoDBDriver(), $this->getTranslator(), $driverOptions);
+
+        $this->container->set('lexik_maintenance.driver.factory', $factory);
+
+        $this->assertInstanceOf('Lexik\Bundle\MaintenanceBundle\Drivers\MongoDBDriver', $factory->getDriver());
+    }
+
     public function testExceptionGetDriver()
     {
         $driverOptions = array('class' => '\Unknown', 'options' => null);
 
-        $factory = new DriverFactory($this->getDatabaseDriver(), $this->getTranslator(), $driverOptions);
+        $factory = new DriverFactory($this->getDatabaseDriver(), $this->getMongoDBDriver(), $this->getTranslator(), $driverOptions);
         $this->container->set('lexik_maintenance.driver.factory', $factory);
 
         try {
@@ -97,6 +108,15 @@ class DriverFactoryTest extends \PHPUnit_Framework_TestCase
                 ->getMock();
 
         return $db;
+    }
+
+    protected function getMongoDBDriver()
+    {
+        $mongodb = $this->getMockbuilder('Lexik\Bundle\MaintenanceBundle\Drivers\MongoDBDriver')
+                ->disableOriginalConstructor()
+                ->getMock();
+
+        return $mongodb;
     }
 
     public function getTranslator()

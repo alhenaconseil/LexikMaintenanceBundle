@@ -29,6 +29,7 @@ class LexikMaintenanceExtension extends Extension
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
         $loader->load('database.xml');
+        $loader->load('mongodb.xml');
 
         if (isset($config['driver']['ttl'])) {
             $config['driver']['options']['ttl'] = $config['driver']['ttl'];
