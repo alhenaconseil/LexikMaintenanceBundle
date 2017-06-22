@@ -121,7 +121,7 @@ class MongoDBDriver extends AbstractDriver implements DriverTtlInterface
      */
     public function getMessageLock($resultTest)
     {
-        $key = $resultTest ? 'lexik_maintenance.success_lock_database' : 'lexik_maintenance.not_success_lock';
+        $key = $resultTest ? 'lexik_maintenance.success_lock_mongodb' : 'lexik_maintenance.not_success_lock';
 
         return $this->translator->trans($key, array(), 'maintenance');
     }
